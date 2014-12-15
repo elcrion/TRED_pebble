@@ -1,0 +1,80 @@
+{
+    "appKeys": {},
+    "capabilities": [
+        ""
+    ],
+    "companyName": "dolgafar",
+    "longName": "TRED",
+    "projectType": "native",
+    "resources": {
+        "media": [
+            {
+                "file": "images/wireless_no-512.png",
+                "name": "NO_CONNECTION_IMG",
+                "type": "png"
+            },
+            {
+                "file": "images/wireless-512.png",
+                "name": "SIGNAL_IMG",
+                "type": "png"
+            },
+            {
+                "file": "images/pebble_charging.png",
+                "name": "BATTERY_CHARGING",
+                "type": "png"
+            },
+            {
+                "file": "images/pebble_charged.png",
+                "name": "BATTERY_CHARGED",
+                "type": "png"
+            },
+            {
+                "file": "images/pebble_full.png",
+                "name": "BATTERY_FULL",
+                "type": "png"
+            },
+            {
+                "file": "images/pebble_med.png",
+                "name": "BATTERY_MED",
+                "type": "png"
+            },
+            {
+                "file": "images/pebble_low.png",
+                "name": "BATTERY_LOW",
+                "type": "png"
+            },
+            {
+                "file": "fonts/DS.ttf",
+                "name": "FONT_OSP_DIN_16",
+                "type": "font"
+            },
+            {
+                "file": "fonts/DS.ttf",
+                "name": "FONT_OSP_DIN_22",
+                "type": "font"
+            },
+            {
+                "file": "fonts/DS.ttf",
+                "name": "FONT_OSP_DIN_42",
+                "type": "font"
+            },
+            {
+                "file": "fonts/DS.ttf",
+                "name": "FONT_OSP_DIN_54",
+                "type": "font"
+            },
+            {
+                "file": "images/close.png",
+                "name": "IMAGE_CLOSE_ICON",
+                "type": "png"
+            }
+        ]
+    },
+    "shortName": "TRED",
+    "uuid": "6ae8feee-1a44-4706-8f9b-6a4d2c657ce8",
+    "versionCode": 1,
+    "versionLabel": "1.0",
+    "watchapp": {
+        "watchface": false
+    }
+}
