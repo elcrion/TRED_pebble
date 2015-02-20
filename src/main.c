@@ -205,8 +205,10 @@ void showmain(){
 
 static void my_next_click_handler(ClickRecognizerRef recognizer, void *context) {
 action_bar_layer_destroy(action_bar);
-text_layer_destroy(s_detail_layer);
-text_layer_destroy(s_output_layer);	
+//text_layer_destroy(s_detail_layer);
+text_layer_set_text(s_detail_layer, "");
+	
+  text_layer_set_text(s_output_layer, "");
 	showmain();
 	
 }
@@ -258,9 +260,9 @@ action_bar = action_bar_layer_create();
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   // Get the first pair
   Tuple *t = dict_read_first(iterator);
- 
-showmessage_window();
 
+showmessage_window();
+ 
 	
   // Process all pairs present
   while (t != NULL) {
@@ -297,7 +299,7 @@ showmessage_window();
 }
 
 static void inbox_dropped_callback(AppMessageResult reason, void *context) {
-  APP_LOG(APP_LOG_LEVEL_ERROR, "Message dropped!");
+  APP_LOG(APP_LOG_LEVEL_DEBUG, "In dropped: %i ", reason);
 }
 
 static void outbox_failed_callback(DictionaryIterator *iterator, AppMessageResult reason, void *context) {
@@ -340,7 +342,7 @@ static void main_window_load(Window *window) {
 
 static void main_window_unload(Window *window) {
   // Destroy output TextLayer
-  text_layer_destroy(s_output_layer);
+  //text_layer_destroy(s_output_layer);
 	// text_layer_destroy(s_detail_layer);
 	// text_layer_destroy(s_output_layer);
 }
