@@ -12,6 +12,31 @@
     "resources": {
         "media": [
             {
+                "file": "images/close_icon.png",
+                "name": "CLOSE_ICON",
+                "type": "png"
+            },
+            {
+                "file": "fonts/DS.ttf",
+                "name": "FONT_OSP_DIN_54",
+                "type": "font"
+            },
+            {
+                "file": "fonts/DS.ttf",
+                "name": "FONT_OSP_DIN_42",
+                "type": "font"
+            },
+            {
+                "file": "fonts/DS.ttf",
+                "name": "FONT_OSP_DIN_22",
+                "type": "font"
+            },
+            {
+                "file": "fonts/DS.ttf",
+                "name": "FONT_OSP_DIN_16",
+                "type": "font"
+            },
+            {
                 "file": "images/wireless_no-512.png",
                 "name": "NO_CONNECTION_IMG",
                 "type": "png"
@@ -47,26 +72,6 @@
                 "type": "png"
             },
             {
-                "file": "fonts/DS.ttf",
-                "name": "FONT_OSP_DIN_16",
-                "type": "font"
-            },
-            {
-                "file": "fonts/DS.ttf",
-                "name": "FONT_OSP_DIN_22",
-                "type": "font"
-            },
-            {
-                "file": "fonts/DS.ttf",
-                "name": "FONT_OSP_DIN_42",
-                "type": "font"
-            },
-            {
-                "file": "fonts/DS.ttf",
-                "name": "FONT_OSP_DIN_54",
-                "type": "font"
-            },
-            {
                 "file": "images/close.png",
                 "name": "IMAGE_CLOSE_ICON",
                 "type": "png"
@@ -76,7 +81,7 @@
     "shortName": "TRED",
     "uuid": "6ae8feee-1a44-4706-8f9b-6a4d2c657ce8",
     "versionCode": 1,
-    "versionLabel": "1.0",
+    "versionLabel": "1.1",
     "watchapp": {
         "watchface": false
     }

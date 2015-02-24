@@ -9,9 +9,13 @@ static TextLayer *s_output_layer;
 static TextLayer *s_detail_layer;
 static BitmapLayer *icon_layer;
 static BitmapLayer *conn_icon_layer;
+static BitmapLayer *close_icon_layer;
 static TextLayer *battery_text_layer;
 static TextLayer *conn_text_layer;
+static TextLayer *close_layer;
 
+static PropertyAnimation *down_animation;
+static PropertyAnimation *left_animation;
 GBitmap *future_bitmap;
 Layer *window_layer;
 GFont custom_font ;
@@ -23,7 +27,7 @@ TextLayer *text_time_layer;
 Layer *line_layer;
 static GBitmap *icon_bitmap = NULL;
 static GBitmap *wicon_bitmap = NULL;
-
+#define ConstantGRect(x, y, w, h) {{(x), (y)}, {(w), (h)}}
 enum BatteryKey {
   BATTERY_LOW_KEY = 0x0,         // TUPLE_INT
   BATTERY_FULL_KEY = 0x1,  // TUPLE_CSTRING
@@ -31,7 +35,7 @@ enum BatteryKey {
 	BATTERY_CHARGING_KEY = 0x3,
 		BATTERY_CHARGED_KEY = 0x4
 };
-
+static Layer *layer_main;
 static const uint32_t Battery_ICONS[] = {
 	 RESOURCE_ID_BATTERY_LOW, 
   RESOURCE_ID_BATTERY_FULL, 
@@ -78,7 +82,7 @@ static void handle_battery(BatteryChargeState charge_state) {
   }
   text_layer_set_text(battery_text_layer, battery_text);
 }
-
+  
 
 
 void handle_minute_tick(struct tm *tick_time, TimeUnits units_changed) {
@@ -144,17 +148,17 @@ static void handle_bluetooth(bool connected) {
 
 
 
+
+
+
+
 void showmain(){
 	
-	
+
 		window_set_background_color(s_main_window, GColorBlack);
  layer_add_child(window_layer, bitmap_layer_get_layer(icon_layer));
  layer_add_child(window_layer, bitmap_layer_get_layer(conn_icon_layer));
-	
-	
-	
-	
-	
+
 	  text_layer_set_text_color(battery_text_layer, GColorWhite);
   text_layer_set_background_color(battery_text_layer, GColorClear);
   text_layer_set_font(battery_text_layer, custom_font_bat);
@@ -184,7 +188,7 @@ void showmain(){
   line_layer = layer_create(line_frame);
   layer_set_update_proc(line_layer, line_layer_update_callback);
   layer_add_child(window_layer, line_layer);
-
+layer_set_hidden(line_layer,false);
   tick_timer_service_subscribe(MINUTE_UNIT, handle_minute_tick);
   handle_minute_tick(NULL, MINUTE_UNIT);
 	 battery_state_service_subscribe(&handle_battery);
@@ -202,14 +206,57 @@ void showmain(){
 }
 
 
+#define ANIMATION_DURATION_IN_MS 700
+	
+	void animation_stopped2(Animation *animation, bool finished, void *data) {
+	
+	showmain();
+	
+}
+	
+
+
+
+
+
+void animation_close(){
+		 Layer *layer = bitmap_layer_get_layer(close_icon_layer);
+	GRect UPPER_TO_RECT = ConstantGRect(0, 0, 144, 168);
+	GRect LOWER_TO_RECT = ConstantGRect(0, 156, 144, 168);
+
+	down_animation = property_animation_create_layer_frame(layer, &UPPER_TO_RECT, &LOWER_TO_RECT);
+  animation_set_duration((Animation*) down_animation, ANIMATION_DURATION_IN_MS);
+  animation_set_delay((Animation*) down_animation, 1000);
+	animation_set_curve((Animation*) down_animation, AnimationCurveEaseOut);	
+	
+ animation_set_handlers((Animation*) down_animation, (AnimationHandlers) {
+    .stopped = (AnimationStoppedHandler) animation_stopped2,
+  }, NULL);
+	
+	
+	animation_schedule((Animation*) down_animation);
+
+}
+
+
 
 static void my_next_click_handler(ClickRecognizerRef recognizer, void *context) {
-action_bar_layer_destroy(action_bar);
-//text_layer_destroy(s_detail_layer);
-text_layer_set_text(s_detail_layer, "");
 	
-  text_layer_set_text(s_output_layer, "");
-	showmain();
+	property_animation_destroy(down_animation);
+   action_bar_layer_destroy(action_bar);
+	   layer_set_hidden(layer_main,true);
+		layer_set_hidden(line_layer,true);
+	window_set_background_color(s_main_window, GColorBlack);
+		bitmap_layer_destroy(close_icon_layer);
+	close_icon_layer = bitmap_layer_create(GRect(25, 30, 100,100)); 
+ layer_add_child(window_layer, bitmap_layer_get_layer(close_icon_layer));
+	 GBitmap *icon_bitmap  = gbitmap_create_with_resource(RESOURCE_ID_CLOSE_ICON);
+	bitmap_layer_set_bitmap(close_icon_layer,icon_bitmap );
+
+	animation_close();
+
+ 
+
 	
 }
 
@@ -223,8 +270,10 @@ void click_config_provider(void *context) {
 
 
 void showmessage_window(){
+	
 	battery_state_service_unsubscribe();
 	 bluetooth_connection_service_unsubscribe();
+	 layer_set_hidden(layer_main,false);
 	 window_set_background_color(s_main_window, GColorWhite);
 		 layer_set_hidden(bitmap_layer_get_layer(icon_layer), true);
   	   layer_set_hidden(bitmap_layer_get_layer(conn_icon_layer), true);
@@ -232,10 +281,6 @@ void showmessage_window(){
 	layer_set_hidden(text_layer_get_layer(text_date_layer),true);
 		layer_set_hidden(text_layer_get_layer(battery_text_layer),true);
 		layer_set_hidden(text_layer_get_layer(text_time_layer),true);
-
-	
-
-	
 		text_layer_set_text_color(s_detail_layer,GColorWhite );
   text_layer_set_font(s_output_layer, custom_font);
 	text_layer_set_text_color(s_output_layer,GColorClear );
@@ -245,10 +290,12 @@ void showmessage_window(){
   text_layer_set_overflow_mode(s_output_layer, GTextOverflowModeWordWrap);
 		text_layer_set_text_alignment(s_detail_layer,GTextAlignmentCenter );
 	text_layer_set_text_alignment(s_output_layer,GTextAlignmentCenter );
-  layer_add_child(window_layer, text_layer_get_layer(s_output_layer));
-	 layer_add_child(window_layer, text_layer_get_layer(s_detail_layer));
+  layer_add_child(layer_main, text_layer_get_layer(s_output_layer));
+	 layer_add_child(layer_main, text_layer_get_layer(s_detail_layer));
+	
+	 layer_add_child(window_layer, layer_main);
 action_bar = action_bar_layer_create();
-	action_bar_layer_set_background_color(action_bar,GColorWhite);
+	action_bar_layer_set_background_color(action_bar,GColorWhite);	
  action_bar_layer_add_to_window(action_bar, s_main_window);
   action_bar_layer_set_click_config_provider(action_bar,
                                              click_config_provider);
@@ -317,10 +364,12 @@ static void main_window_load(Window *window) {
    window_layer = window_get_root_layer(window);
   GRect window_bounds = layer_get_bounds(window_layer);
 
-	
+	  GRect bounds = layer_get_frame(window_layer);
+  layer_main = layer_create(bounds);
   // Create output TextLayer
  	s_detail_layer = text_layer_create(GRect(0, window_bounds.size.h-60, window_bounds.size.w-10 , 30));
   s_output_layer = text_layer_create(GRect(5, 20, window_bounds.size.w - 5, window_bounds.size.h-40));
+	close_layer = text_layer_create(GRect(25, 30, window_bounds.size.w -50, window_bounds.size.h-60));
 	text_layer_set_font(s_detail_layer,fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD ));
 
   text_date_layer = text_layer_create(GRect(8, 68, 144-8, 168-68));
@@ -358,6 +407,8 @@ static void init() {
    (resource_get_handle(RESOURCE_ID_FONT_OSP_DIN_22));
 		 custom_font_conn =  fonts_load_custom_font
    (resource_get_handle(RESOURCE_ID_FONT_OSP_DIN_16));
+	
+	
 	
   app_message_register_inbox_received(inbox_received_callback);
   app_message_register_inbox_dropped(inbox_dropped_callback);
