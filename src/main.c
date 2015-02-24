@@ -243,7 +243,7 @@ void animation_close(){
 static void my_next_click_handler(ClickRecognizerRef recognizer, void *context) {
 	
 	property_animation_destroy(down_animation);
-   action_bar_layer_destroy(action_bar);
+   action_bar_layer_remove_from_window (action_bar);	
 	   layer_set_hidden(layer_main,true);
 		layer_set_hidden(line_layer,true);
 	window_set_background_color(s_main_window, GColorBlack);
@@ -307,7 +307,7 @@ action_bar = action_bar_layer_create();
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
   // Get the first pair
   Tuple *t = dict_read_first(iterator);
-
+  action_bar_layer_destroy(action_bar);
 showmessage_window();
  
 	
@@ -434,7 +434,7 @@ static void deinit() {
 	tick_timer_service_unsubscribe();
 	  battery_state_service_unsubscribe();
 	bluetooth_connection_service_unsubscribe();
-	
+	 
   window_destroy(s_main_window);
 }
 
