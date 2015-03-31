@@ -1,7 +1,9 @@
 {
     "appKeys": {
+        "Data": 45,
         "KEY_COMPL": 5,
-        "KEY_DAYS": 6
+        "KEY_DAYS": 6,
+        "PERSIST_KEY_LAUNCHES": 10
     },
     "capabilities": [
         ""
@@ -78,10 +80,11 @@
             }
         ]
     },
+    "sdkVersion": "2",
     "shortName": "TRED",
     "uuid": "6ae8feee-1a44-4706-8f9b-6a4d2c657ce8",
     "versionCode": 1,
-    "versionLabel": "1.1",
+    "versionLabel": "1.2",
     "watchapp": {
         "watchface": false
     }

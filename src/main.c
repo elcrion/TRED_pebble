@@ -2,7 +2,8 @@
 
 #define KEY_COMPL 5
 #define KEY_DAYS  6
-	
+#define PERSIST_KEY_LAUNCHES 10
+#define PERSIST_KEY 10;	 
 ActionBarLayer *action_bar;
 static Window *s_main_window;
 static TextLayer *s_output_layer;
@@ -13,7 +14,7 @@ static BitmapLayer *close_icon_layer;
 static TextLayer *battery_text_layer;
 static TextLayer *conn_text_layer;
 static TextLayer *close_layer;
-
+static DictionaryIterator dict_iter, *iter = &dict_iter;
 static PropertyAnimation *down_animation;
 static PropertyAnimation *left_animation;
 GBitmap *future_bitmap;
@@ -35,6 +36,13 @@ enum BatteryKey {
 	BATTERY_CHARGING_KEY = 0x3,
 		BATTERY_CHARGED_KEY = 0x4
 };
+
+uint8_t sample_freq = ACCEL_SAMPLING_10HZ;
+uint16_t cnt=0; 
+#define KEY_Data	45
+uint8_t num_samples = 25; 
+int16_t *acc_data;
+uint16_t sample_count=0;
 static Layer *layer_main;
 static const uint32_t Battery_ICONS[] = {
 	 RESOURCE_ID_BATTERY_LOW, 
@@ -308,8 +316,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   // Get the first pair
   Tuple *t = dict_read_first(iterator);
   action_bar_layer_destroy(action_bar);
-showmessage_window();
- 
+	
 	
   // Process all pairs present
   while (t != NULL) {
@@ -322,6 +329,7 @@ showmessage_window();
    switch (t->key) {
       case KEY_COMPL:
         // Copy value and display
+	   showmessage_window();
        vibes_double_pulse();
         snprintf(s_buffer, sizeof(s_buffer), "%s", t->value->cstring);
         text_layer_set_text(s_output_layer, s_buffer);
@@ -331,10 +339,17 @@ showmessage_window();
 	   case KEY_DAYS:
         // Copy value and display
        vibes_double_pulse();
+	   showmessage_window();
         snprintf(s_buffer, sizeof(s_buffer), "%s", t->value->cstring);
         text_layer_set_text(s_output_layer, s_buffer);
 	    text_layer_set_text(s_detail_layer, "days streak");
        break;
+	   
+	   case PERSIST_KEY_LAUNCHES:
+	   
+	   persist_write_string(PERSIST_KEY_LAUNCHES,t->value->cstring);
+	   
+	   break;
 	   
 	  
 	   
@@ -389,6 +404,44 @@ static void main_window_load(Window *window) {
 
 
 
+void accel_data_handler(AccelData *data, uint32_t num_samples) {
+	if (persist_exists(PERSIST_KEY_LAUNCHES)) {
+	AccelData *d = data; 
+	
+	for (uint8_t i = 0; i < num_samples; i++, d++) {
+		
+		acc_data[cnt++]= d->x;
+		acc_data[cnt++]= d->y;
+		acc_data[cnt++]= d->z;
+
+	}
+		sample_count++;
+	
+	if(sample_count>=3){
+		
+	cnt=0;
+	sample_count=0;
+	
+	
+	
+	
+		app_message_outbox_begin(&iter);
+	char userid[30];
+	 persist_read_string(PERSIST_KEY_LAUNCHES,userid,sizeof(userid));
+				
+	dict_write_cstring(iter, PERSIST_KEY_LAUNCHES, userid);
+	Tuplet acc_val = TupletBytes(KEY_Data, (uint8_t *)acc_data, 3*num_samples*6);
+	dict_write_tuplet(iter, &acc_val);
+		
+	app_message_outbox_send();
+
+	}
+	}
+	
+}
+
+
+
 static void main_window_unload(Window *window) {
   // Destroy output TextLayer
   //text_layer_destroy(s_output_layer);
@@ -408,7 +461,9 @@ static void init() {
 		 custom_font_conn =  fonts_load_custom_font
    (resource_get_handle(RESOURCE_ID_FONT_OSP_DIN_16));
 	
-	
+		accel_data_service_subscribe(25, &accel_data_handler);
+	accel_service_set_sampling_rate(sample_freq); //This is the place that works
+	acc_data= malloc(3*num_samples * 6);
 	
   app_message_register_inbox_received(inbox_received_callback);
   app_message_register_inbox_dropped(inbox_dropped_callback);
@@ -416,8 +471,8 @@ static void init() {
   app_message_register_outbox_sent(outbox_sent_callback);
   
   // Open AppMessage
-  app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
-
+ // app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
+app_message_open(64, 600);
 
 
   // Create main Window
